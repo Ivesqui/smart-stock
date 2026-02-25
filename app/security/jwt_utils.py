@@ -5,11 +5,11 @@ import os
 
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")
 
-def crear_token(usuario):
+def crear_token(user):
     payload = {
-        "user_id": usuario.id,
-        "email": usuario.email,
-        "rol": usuario.rol,
+        "user_id": user.id,
+        "email": user.email,
+        "rol": user.rol,
         "exp": datetime.utcnow() + timedelta(hours=8)
     }
 

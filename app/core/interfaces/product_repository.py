@@ -3,7 +3,7 @@ from typing import List, Optional
 from core.entities.producto import Producto
 
 
-class ProductoRepository(ABC):
+class ProductRepository(ABC):
 
     @abstractmethod
     def guardar(self, producto: Producto):

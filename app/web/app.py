@@ -66,7 +66,7 @@ def register():
 
         return success_response(
             data=usuario.to_dict(),
-            message="Usuario registrado",
+            message="User registrado",
             status=201
         )
 
@@ -125,7 +125,7 @@ def crear_producto():
 
         inventario.crear_producto(producto)
 
-        return success_response(message="Producto creado", status=201)
+        return success_response(message="Product creado", status=201)
 
     except ValueError as e:
         return error_response(str(e), 400)
@@ -156,7 +156,7 @@ def buscar_por_sku(sku):
     producto = inventario.buscar_por_sku(sku)
 
     if not producto:
-        return error_response("Producto no encontrado", 404)
+        return error_response("Product no encontrado", 404)
 
     return success_response(data=producto)
 
@@ -181,7 +181,7 @@ def buscar_por_codigo(codigo):
     producto = inventario.buscar_por_codigo_barras(codigo)
 
     if not producto:
-        return error_response("Producto no encontrado", 404)
+        return error_response("Product no encontrado", 404)
 
     return success_response(data=producto)
 
@@ -197,9 +197,9 @@ def actualizar_total(sku):
     actualizado = inventario.actualizar_producto(sku, data)
 
     if not actualizado:
-        return error_response("Producto no encontrado", 404)
+        return error_response("Product no encontrado", 404)
 
-    return success_response(message="Producto actualizado")
+    return success_response(message="Product actualizado")
 
 
 # ✔ PATCH parcial
@@ -213,9 +213,9 @@ def actualizar_parcial(sku):
     actualizado = inventario.actualizar_parcial(sku, data)
 
     if not actualizado:
-        return error_response("Producto no encontrado", 404)
+        return error_response("Product no encontrado", 404)
 
-    return success_response(message="Producto actualizado parcialmente")
+    return success_response(message="Product actualizado parcialmente")
 
 # ✔ PATCH alta lógica
 @app.route("/productos/<sku>/alta", methods=["PATCH"])
@@ -226,9 +226,9 @@ def dar_de_alta(sku):
     activado = inventario.activar_producto(sku)
 
     if not activado:
-        return error_response("Producto no encontrado", 404)
+        return error_response("Product no encontrado", 404)
 
-    return success_response(message="Producto activado")
+    return success_response(message="Product activado")
 
 # ✔ PATCH baja lógica
 @app.route("/productos/<sku>/baja", methods=["PATCH"])
@@ -239,9 +239,9 @@ def dar_de_baja(sku):
     eliminado = inventario.desactivar_producto(sku)
 
     if not eliminado:
-        return error_response("Producto no encontrado", 404)
+        return error_response("Product no encontrado", 404)
 
-    return success_response(message="Producto desactivado")
+    return success_response(message="Product desactivado")
 
 
 # ======================================================
@@ -267,7 +267,7 @@ def registrar_movimiento():
         )
 
         if not resultado:
-            return error_response("Producto no encontrado", 404)
+            return error_response("Product no encontrado", 404)
 
         return success_response(message="Movimiento registrado")
 

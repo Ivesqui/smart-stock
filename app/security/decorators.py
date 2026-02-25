@@ -40,7 +40,7 @@ def roles_required(*roles):
             user = getattr(request, "user", None)
 
             if not user:
-                return {"error": "Usuario no autenticado"}, 401
+                return {"error": "User no autenticado"}, 401
 
             if user.get("rol") not in roles:
                 return {"error": "No autorizado"}, 403

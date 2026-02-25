@@ -15,14 +15,14 @@ class InventarioService:
         if not producto.sku or not producto.nombre_producto:
             raise ValueError("SKU y nombre son obligatorios")
 
-        if self.repository.obtener_por_sku(producto.sku):
+        if self.repository.get_by_sku(producto.sku):
             raise ValueError("El SKU ya existe")
 
         producto.fecha_creacion = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         producto.fecha_actualizacion = producto.fecha_creacion
         producto.activo = True
 
-        self.repository.guardar(producto)
+        self.repository.save(producto)
         return True
 
     # ======================================================
@@ -30,7 +30,7 @@ class InventarioService:
     # ======================================================
     def listar_productos(self, estado=None):
 
-        productos = self.repository.obtener_todos()
+        productos = self.repository.get_all()
 
         if estado == "ACTIVO":
             return [p for p in productos if p["activo"] == 1]
@@ -44,30 +44,30 @@ class InventarioService:
     # BUSCAR
     # ======================================================
     def buscar_por_sku(self, sku: str):
-        return self.repository.obtener_por_sku(sku)
+        return self.repository.get_by_sku(sku)
 
     def buscar_por_nombre(self, nombre: str):
-        return self.repository.obtener_por_nombre(nombre)
+        return self.repository.get_by_name(nombre)
 
     def buscar_por_codigo_barras(self, codigo: str):
-        return self.repository.obtener_por_codigo_barras(codigo)
+        return self.repository.get_by_barcode(codigo)
 
     # ======================================================
     # ACTUALIZACIONES
     # ======================================================
     def actualizar_producto(self, sku: str, datos: dict):
 
-        producto = self.repository.obtener_por_sku(sku)
+        producto = self.repository.get_by_sku(sku)
         if not producto:
             return False
 
         datos["fecha_actualizacion"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        self.repository.actualizar(sku, datos)
+        self.repository.update_all(sku, datos)
         return True
 
     def actualizar_parcial(self, sku: str, datos: dict):
 
-        producto = self.repository.obtener_por_sku(sku)
+        producto = self.repository.get_by_sku(sku)
         if not producto:
             return False
 
@@ -80,12 +80,12 @@ class InventarioService:
     # ======================================================
     def activar_producto(self, sku: str):
 
-        producto = self.repository.obtener_por_sku(sku)
+        producto = self.repository.get_by_sku(sku)
 
         if not producto:
             return False
 
-        self.repository.activar_logico(sku)
+        self.repository.activate_logic(sku)
         return True
 
     # ======================================================
@@ -93,11 +93,11 @@ class InventarioService:
     # ======================================================
     def desactivar_producto(self, sku: str):
 
-        producto = self.repository.obtener_por_sku(sku)
+        producto = self.repository.get_by_sku(sku)
         if not producto:
             return False
 
-        self.repository.eliminar_logico(sku)
+        self.repository.delete_logic(sku)
         return True
 
     # ======================================================
@@ -108,7 +108,7 @@ class InventarioService:
         if cantidad <= 0:
             raise ValueError("Cantidad debe ser mayor a 0")
 
-        producto = self.repository.obtener_por_sku(sku)
+        producto = self.repository.get_by_sku(sku)
         if not producto:
             return False
 
@@ -147,7 +147,7 @@ class InventarioService:
     # ======================================================
     def obtener_resumen_dashboard(self):
 
-        productos = self.repository.obtener_todos()
+        productos = self.repository.get_all()
 
         return {
             "total_productos": len(productos),

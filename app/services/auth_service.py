@@ -22,7 +22,7 @@ class AuthService:
             rol=rol
         )
 
-        usuario = self.repo.guardar(usuario)
+        usuario = self.repo.save(usuario)
         print("PASSWORD RECIBIDO:", password)
         print("LENGTH:", len(password))
         print("PASSWORD RECIBIDO:", password)

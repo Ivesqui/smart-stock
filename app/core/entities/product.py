@@ -1,6 +1,6 @@
 from datetime import datetime
 
-class Producto:
+class Product:
 
     def __init__(
         self,

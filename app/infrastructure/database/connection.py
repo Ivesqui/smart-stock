@@ -1,7 +1,7 @@
 import sqlite3
 
 
-def conectar():
+def connect():
     """
     Crea y devuelve una conexión a la base de datos SQLite.
 
@@ -21,7 +21,7 @@ def conectar():
     return conn
 
 
-def crear_tablas():
+def create_tables():
     """
     Crea las tablas principales del sistema.
 
@@ -30,7 +30,7 @@ def crear_tablas():
     - movimientos → historial completo (kardex)
     """
 
-    conn = conectar()
+    conn = connect()
     cursor = conn.cursor()
 
     # ==========================================================

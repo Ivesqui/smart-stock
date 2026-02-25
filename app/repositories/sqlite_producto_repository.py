@@ -2,12 +2,12 @@ import sqlite3
 from typing import List, Optional
 
 
-class SqliteProductoRepository:
+class SqliteProductRepository:
 
     def __init__(self, db_path="inventario.db"):
         self.db_path = db_path
 
-    def _conectar(self):
+    def _connect(self):
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         return conn
@@ -15,9 +15,9 @@ class SqliteProductoRepository:
     # ======================================================
     # GUARDAR PRODUCTO
     # ======================================================
-    def guardar(self, producto):
+    def save(self, producto):
 
-        conn = self._conectar()
+        conn = self._connect()
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -50,8 +50,8 @@ class SqliteProductoRepository:
     # ======================================================
     # OBTENER TODOS
     # ======================================================
-    def obtener_todos(self) -> List[dict]:
-        conn = self._conectar()
+    def get_all(self) -> List[dict]:
+        conn = self._connect()
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM productos")
         filas = cursor.fetchall()
@@ -61,8 +61,8 @@ class SqliteProductoRepository:
     # ======================================================
     # OBTENER POR SKU
     # ======================================================
-    def obtener_por_sku(self, sku: str) -> Optional[dict]:
-        conn = self._conectar()
+    def get_by_sku(self, sku: str) -> Optional[dict]:
+        conn = self._connect()
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM productos WHERE sku = ?", (sku,))
         fila = cursor.fetchone()
@@ -72,8 +72,8 @@ class SqliteProductoRepository:
     # ======================================================
     # BUSCAR POR NOMBRE
     # ======================================================
-    def obtener_por_nombre(self, nombre: str):
-        conn = self._conectar()
+    def get_by_name(self, nombre: str):
+        conn = self._connect()
         cursor = conn.cursor()
         cursor.execute("""
             SELECT * FROM productos
@@ -86,8 +86,8 @@ class SqliteProductoRepository:
     # ======================================================
     # BUSCAR POR CÓDIGO DE BARRAS
     # ======================================================
-    def obtener_por_codigo_barras(self, codigo: str):
-        conn = self._conectar()
+    def get_by_barcode(self, codigo: str):
+        conn = self._connect()
         cursor = conn.cursor()
         cursor.execute("""
             SELECT * FROM productos
@@ -100,8 +100,8 @@ class SqliteProductoRepository:
     # ======================================================
     # ACTUALIZAR
     # ======================================================
-    def actualizar(self, sku: str, datos: dict):
-        conn = self._conectar()
+    def update_all(self, sku: str, datos: dict):
+        conn = self._connect()
         cursor = conn.cursor()
 
         campos = ", ".join([f"{k} = ?" for k in datos.keys()])
@@ -116,13 +116,13 @@ class SqliteProductoRepository:
         conn.close()
 
     def actualizar_parcial(self, sku: str, datos: dict):
-        self.actualizar(sku, datos)
+        self.update_all(sku, datos)
 
     # ======================================================
     # ELIMINACIÓN LÓGICA
     # ======================================================
-    def eliminar_logico(self, sku: str):
-        conn = self._conectar()
+    def delete_logic(self, sku: str):
+        conn = self._connect()
         cursor = conn.cursor()
         cursor.execute("""
             UPDATE productos
@@ -135,8 +135,8 @@ class SqliteProductoRepository:
     # ======================================================
     # ACTIVAR PRODUCTO (ALTA LÓGICA)
     # ======================================================
-    def activar_logico(self, sku: str):
-        conn = self._conectar()
+    def activate_logic(self, sku: str):
+        conn = self._connect()
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -152,7 +152,7 @@ class SqliteProductoRepository:
     # MOVIMIENTOS
     # ======================================================
     def guardar_movimiento(self, movimiento: dict):
-        conn = self._conectar()
+        conn = self._connect()
         cursor = conn.cursor()
         cursor.execute("""
             INSERT INTO movimientos (
@@ -170,7 +170,7 @@ class SqliteProductoRepository:
         conn.close()
 
     def obtener_movimientos_por_sku(self, sku: str):
-        conn = self._conectar()
+        conn = self._connect()
         cursor = conn.cursor()
         cursor.execute("""
             SELECT * FROM movimientos
