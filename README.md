@@ -95,32 +95,33 @@ Este formato facilita la identificación del tipo de producto y es comúnmente u
 ## 🗂️ Estructura del Proyecto
 
 ```
-app/
-├── core/
-│ ├── entities/
-│ │  ├── product.py
-│ │  └── user.py
-│ └── interfaces/
-├── interfaces/
-│ └── product_repository.py 
-├── infrastructure/
-│ └── database/
-│    └── conect.py
-├── security/
-│ ├── decorators.py
-│ ├── hash_utils.py
-│ └── jwt_utils.py
-├── services/
-│ ├── init.py
-│ ├── auth_service.py
-│ ├── inventory_service.py
-│ └── report_excel_service.py 
-├── tests/
-├── web/
-│ └── app.py 
-├── _init_.py
-├── inventory.db
-├── main.py
+smart-stock
+├app/
+│ ├── core/
+│ │ ├── entities/
+│ │ │  ├── product.py
+│ │ │  └── user.py
+│ │ └── interfaces/
+│ ├── interfaces/
+│ │ └── product_repository.py 
+│ ├── infrastructure/
+│ │ └── database/
+│ │    └── conect.py
+│ ├── security/
+│ │ ├── decorators.py
+│ │ ├── hash_utils.py
+│ │ └── jwt_utils.py
+│ ├── services/
+│ │ ├── init.py
+│ │ ├── auth_service.py
+│ │ ├── inventory_service.py
+│ │ └── report_excel_service.py 
+│ ├── tests/
+│ ├── web/
+│ │ └── app.py 
+│ ├── _init_.py
+│ ├── inventory.db
+│ └── main.py
 └── README.md
 ```
 
