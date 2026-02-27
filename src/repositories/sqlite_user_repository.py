@@ -1,8 +1,8 @@
 import sqlite3
-from core.entities.usuario import Usuario
+from core.entities.user import User
 
 
-class SqliteUsuarioRepository:
+class SqliteUserRepository:
 
     def __init__(self, db_path):
         self.db_path = db_path
@@ -15,7 +15,7 @@ class SqliteUsuarioRepository:
     # ======================================================
     # CREAR USUARIO
     # ======================================================
-    def guardar(self, usuario: Usuario):
+    def guardar(self, usuario: User):
 
         conn = self._conectar()
         cursor = conn.cursor()
@@ -105,7 +105,7 @@ class SqliteUsuarioRepository:
     # ======================================================
     def _row_to_usuario(self, row):
 
-        return Usuario(
+        return User(
             user_id=row["id"],
             nombre=row["nombre"],
             email=row["email"],
@@ -114,3 +114,19 @@ class SqliteUsuarioRepository:
             activo=bool(row["activo"]),
             fecha_creacion=row["fecha_creacion"]
         )
+
+    # ACTUALIZAR PASSWORDS
+
+    def actualizar_password(self, user_id: int, nuevo_hash: str):
+
+        conn = self._conectar()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            UPDATE usuarios
+            SET password_hash = ?
+            WHERE id = ?
+        """, (nuevo_hash, user_id))
+
+        conn.commit()
+        conn.close()

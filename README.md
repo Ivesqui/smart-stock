@@ -96,7 +96,7 @@ Este formato facilita la identificación del tipo de producto y es comúnmente u
 
 ```
 smart-stock
-├app/
+├src/
 │ ├── core/
 │ │ ├── entities/
 │ │ │  ├── product.py

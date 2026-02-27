@@ -12,7 +12,7 @@ from services.reportes_excel_service import InventarioExcelService
 from repositories.sqlite_product_repository import SqliteProductRepository
 from repositories.sqlite_user_repository import SqliteUserRepository
 from security.decorators import token_required, roles_required
-
+from security.hash_utils import verify_password, hash_password, pwd_context
 
 
 # ======================================================
@@ -23,9 +23,9 @@ app = Flask(__name__)
 CORS(app)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "..", "inventario.db")
-repo = SqliteProductoRepository()
+repo = SqliteProductRepository()
 inventario = InventarioService(repo)
-usuario_repo = SqliteUsuarioRepository(DB_PATH)
+usuario_repo = SqliteUserRepository(DB_PATH)
 auth_service = AuthService(usuario_repo)
 excel_service = InventarioExcelService(inventario)
 
@@ -78,6 +78,8 @@ def register():
         print("ERROR REGISTER:", e)
         raise
 
+
+
 @app.route("/auth/login", methods=["POST"])
 def login():
     try:
@@ -92,9 +94,10 @@ def login():
 
     except ValueError as e:
         return error_response(str(e), 401)
-    except Exception:
-        return error_response("Error interno del servidor", 500)
 
+    except Exception as e:
+        print("ERROR LOGIN:", e)
+        raise
 
 
 # ======================================================
@@ -109,7 +112,7 @@ def crear_producto():
     try:
         data = request.get_json()
 
-        producto = Producto(
+        producto = Product(
             sku=data["sku"],
             codigo_barras=data.get("codigo_barras"),
             nombre_producto=data["nombre_producto"],

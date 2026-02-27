@@ -15,14 +15,14 @@ class AuthService:
 
         password_hash = hash_password(password)
 
-        usuario = Usuario(
+        usuario = User(
             nombre=nombre,
             email=email,
             password_hash=password_hash,
             rol=rol
         )
 
-        usuario = self.repo.save(usuario)
+        usuario = self.repo.guardar(usuario)
         print("PASSWORD RECIBIDO:", password)
         print("LENGTH:", len(password))
         print("PASSWORD RECIBIDO:", password)
