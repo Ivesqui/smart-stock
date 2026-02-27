@@ -1,4 +1,4 @@
-from core.entities.usuario import Usuario
+from core.entities.user import User
 from security.hash_utils import hash_password, verify_password
 from security.jwt_utils import crear_token
 

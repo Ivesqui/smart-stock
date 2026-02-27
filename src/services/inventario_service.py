@@ -1,5 +1,5 @@
 from datetime import datetime
-from core.entities.producto import Producto
+from core.entities.product import Product
 
 
 class InventarioService:
@@ -10,19 +10,19 @@ class InventarioService:
     # ======================================================
     # CREAR PRODUCTO
     # ======================================================
-    def crear_producto(self, producto: Producto):
+    def crear_producto(self, product: Product):
 
-        if not producto.sku or not producto.nombre_producto:
+        if not product.sku or not product.nombre_producto:
             raise ValueError("SKU y nombre son obligatorios")
 
-        if self.repository.get_by_sku(producto.sku):
+        if self.repository.get_by_sku(product.sku):
             raise ValueError("El SKU ya existe")
 
-        producto.fecha_creacion = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        producto.fecha_actualizacion = producto.fecha_creacion
-        producto.activo = True
+        product.fecha_creacion = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        product.fecha_actualizacion = product.fecha_creacion
+        product.activo = True
 
-        self.repository.save(producto)
+        self.repository.save(product)
         return True
 
     # ======================================================
@@ -30,15 +30,15 @@ class InventarioService:
     # ======================================================
     def listar_productos(self, estado=None):
 
-        productos = self.repository.get_all()
+        products = self.repository.get_all()
 
         if estado == "ACTIVO":
-            return [p for p in productos if p["activo"] == 1]
+            return [p for p in products if p["activo"] == 1]
 
         if estado == "INACTIVO":
-            return [p for p in productos if p["activo"] == 0]
+            return [p for p in products if p["activo"] == 0]
 
-        return productos
+        return products
 
     # ======================================================
     # BUSCAR

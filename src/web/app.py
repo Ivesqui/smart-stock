@@ -5,12 +5,12 @@ import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask import send_file
-from core.entities.producto import Producto
+from core.entities.product import Product
 from services.auth_service import AuthService
 from services.inventario_service import InventarioService
 from services.reportes_excel_service import InventarioExcelService
-from repositories.sqlite_producto_repository import SqliteProductoRepository
-from repositories.sqlite_usuario_repository import SqliteUsuarioRepository
+from repositories.sqlite_product_repository import SqliteProductRepository
+from repositories.sqlite_user_repository import SqliteUserRepository
 from security.decorators import token_required, roles_required
 
 
@@ -101,7 +101,7 @@ def login():
 # PRODUCTOS
 # ======================================================
 
-# ✔ Crear producto
+# ✔ Crear product
 @app.route("/productos", methods=["POST"])
 @token_required
 @roles_required("ADMIN", "OPERADOR")
