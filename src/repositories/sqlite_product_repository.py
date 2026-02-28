@@ -156,7 +156,7 @@ class SqliteProductRepository:
         cursor = conn.cursor()
         cursor.execute("""
             INSERT INTO movimientos (
-                sku, tipo, cantidad, motivo, fecha
+                sku, tipo, cantidad, motivo, usuario_id, fecha
             )
             VALUES (?, ?, ?, ?, ?)
         """, (
@@ -164,6 +164,7 @@ class SqliteProductRepository:
             movimiento["tipo"],
             movimiento["cantidad"],
             movimiento["motivo"],
+            movimiento["usuario_id"],
             movimiento["fecha"]
         ))
         conn.commit()

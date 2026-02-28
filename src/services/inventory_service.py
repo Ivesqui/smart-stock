@@ -103,7 +103,7 @@ class InventoryService:
     # ======================================================
     # MOVIMIENTOS
     # ======================================================
-    def registrar_movimiento(self, sku, tipo, cantidad, motivo):
+    def registrar_movimiento(self, sku, tipo, cantidad, motivo, usuario_id):
 
         if cantidad <= 0:
             raise ValueError("Cantidad debe ser mayor a 0")
@@ -134,6 +134,7 @@ class InventoryService:
             "tipo": tipo,
             "cantidad": cantidad,
             "motivo": motivo,
+            "usuario_id": usuario_id,
             "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         })
 

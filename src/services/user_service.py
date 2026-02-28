@@ -1,3 +1,5 @@
+
+
 class UserService:
 
     def __init__(self, user_repository):
@@ -23,6 +25,7 @@ class UserService:
     def cambiar_rol(self, user_id, nuevo_rol, current_user):
 
         usuario = self.repo.obtener_por_id(user_id)
+        rol_anterior = usuario.rol
         if not usuario:
             raise ValueError("Usuario no encontrado")
 
@@ -43,6 +46,12 @@ class UserService:
 
         self.repo.actualizar_rol(user_id, nuevo_rol)
 
+        self.audit_service.log(
+            user_id=current_user["user_id"],
+            action="CHANGE_ROLE",
+            target_user_id=user_id,
+            details=f"{rol_anterior} → {nuevo_rol}")
+
     def desactivar_usuario(self, user_id, current_user):
 
         usuario = self.repo.obtener_por_id(user_id)
@@ -60,6 +69,11 @@ class UserService:
                 raise ValueError("No se puede desactivar el último ADMIN")
 
         self.repo.actualizar_estado(user_id, False)
+        self.audit_service.log(
+            user_id=current_user["user_id"],
+            action="DEACTIVATE_USER",
+            target_user_id=user_id
+        )
 
     def activar_usuario(self, user_id):
 

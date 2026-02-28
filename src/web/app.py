@@ -5,6 +5,7 @@ import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask import send_file
+from flask import g
 from core.entities.product import Product
 from services.auth_service import AuthService
 from services.inventory_service import InventoryService
@@ -12,8 +13,10 @@ from services.reportes_excel_service import InventarioExcelService
 from repositories.sqlite_product_repository import SqliteProductRepository
 from repositories.sqlite_user_repository import SqliteUserRepository
 from security.decorators import token_required, roles_required
-from security.hash_utils import verify_password, hash_password, pwd_context
 from services.user_service import UserService
+from services.audit_service import AuditService
+from repositories.audit_repository import AuditRepository
+
 
 # ======================================================
 # CONFIGURACIÓN
@@ -29,6 +32,8 @@ usuario_repo = SqliteUserRepository(DB_PATH)
 auth_service = AuthService(usuario_repo)
 excel_service = InventarioExcelService(inventario)
 user_service = UserService(usuario_repo)
+audit_repo = AuditRepository(DB_PATH)
+audit_serv = AuditService(audit_repo)
 
 # ======================================================
 # RESPUESTAS ESTÁNDAR
@@ -260,7 +265,7 @@ def registrar_movimiento():
     try:
         data = request.get_json()
 
-        user = request.user
+        user = g.user
         resultado = inventario.registrar_movimiento(
             sku=data["sku"],
             tipo=data["tipo"],
@@ -354,7 +359,7 @@ def obtener_usuario(user_id):
 def cambiar_rol(user_id):
 
     data = request.get_json()
-    current_user = request.user
+    current_user = g.user
 
     user_service.cambiar_rol(
         user_id,
@@ -370,7 +375,7 @@ def cambiar_rol(user_id):
 @roles_required("ADMIN")
 def desactivar_usuario(user_id):
 
-    current_user = request.user
+    current_user = g.user
     user_service.desactivar_usuario(user_id, current_user)
 
     return success_response(message="Usuario desactivado")
@@ -385,15 +390,28 @@ def activar_usuario(user_id):
 
     return success_response(message="Usuario activado")
 
+# Obtener logs de audioria
+
+@app.route("/admin/audit-logs", methods=["GET"])
+@token_required
+@roles_required("ADMIN")
+def obtener_audit_logs():
+
+    logs = audit_serv.obtener_logs()
+    return success_response(data=logs)
+
+
 # Información de usuario
 @app.route("/auth/me", methods=["GET"])
 @token_required
 def obtener_usuario_actual():
 
-    current_user = request.user
+    current_user = g.user
     usuario = user_service.obtener_por_id(current_user["user_id"])
 
     return success_response(data=usuario.to_dict())
+
+
 
 # ======================================================
 # PRODUCCIÓN

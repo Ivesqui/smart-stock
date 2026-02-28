@@ -1,6 +1,7 @@
 from functools import wraps
-from flask import request, jsonify
+from flask import request
 from security.jwt_utils import verificar_token
+from flask import g
 import jwt
 
 def token_required(f):
@@ -17,7 +18,7 @@ def token_required(f):
         try:
             token = auth_header.split(" ")[1]
             decoded = verificar_token(token)
-            request.user = decoded
+            g.user = decoded
 
         except jwt.ExpiredSignatureError:
             return {"error": "Token expirado"}, 401

@@ -67,6 +67,7 @@ def create_tables():
             tipo TEXT NOT NULL,
             cantidad INTEGER NOT NULL,
             motivo TEXT NOT NULL,
+            usuario_id INTEGER NOT NULL,
             fecha TEXT NOT NULL,
             FOREIGN KEY (sku) REFERENCES productos(sku)
                 ON DELETE CASCADE
@@ -89,7 +90,27 @@ def create_tables():
         )
     """)
 
+    # ==========================================================
+    # TABLA: audit_logs
+    # ==========================================================
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS audit_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,           
+    action TEXT NOT NULL,             
+    target_user_id INTEGER,            
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    details TEXT                     
+);
+    """)
 
     conn.commit()
     conn.close()
 
+    # CREAR ÍNDICE EN AUDIT LOGS
+
+    cursor.execute("""
+    CREATE INDEX idx_audit_timestamp ON audit_logs(timestamp);
+    """)
+    conn.commit()
+    conn.close()
