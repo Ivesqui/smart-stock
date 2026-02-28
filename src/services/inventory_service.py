@@ -2,7 +2,7 @@ from datetime import datetime
 from core.entities.product import Product
 
 
-class InventarioService:
+class InventoryService:
 
     def __init__(self, repository):
         self.repository = repository

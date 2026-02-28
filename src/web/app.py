@@ -7,13 +7,13 @@ from flask_cors import CORS
 from flask import send_file
 from core.entities.product import Product
 from services.auth_service import AuthService
-from services.inventario_service import InventarioService
+from services.inventory_service import InventoryService
 from services.reportes_excel_service import InventarioExcelService
 from repositories.sqlite_product_repository import SqliteProductRepository
 from repositories.sqlite_user_repository import SqliteUserRepository
 from security.decorators import token_required, roles_required
 from security.hash_utils import verify_password, hash_password, pwd_context
-
+from services.user_service import UserService
 
 # ======================================================
 # CONFIGURACIÓN
@@ -24,11 +24,11 @@ CORS(app)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "..", "inventario.db")
 repo = SqliteProductRepository()
-inventario = InventarioService(repo)
+inventario = InventoryService(repo)
 usuario_repo = SqliteUserRepository(DB_PATH)
 auth_service = AuthService(usuario_repo)
 excel_service = InventarioExcelService(inventario)
-
+user_service = UserService(usuario_repo)
 
 # ======================================================
 # RESPUESTAS ESTÁNDAR
@@ -308,6 +308,7 @@ def dashboard():
 # ======================================================
 # REPORTE INVENTARIO EXCEL
 # ======================================================
+
 @app.route("/reportes/inventario/excel", methods=["GET"])
 @token_required # <- autenticación
 @roles_required("ADMIN", "OPERADOR")
@@ -322,7 +323,77 @@ def descargar_excel_inventario():
         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
+# ======================================================
+# GESTIÓN DE USUARIOS
+# ======================================================
 
+#ADMIN
+
+# Listar todos los usuarios
+@app.route("/users", methods=["GET"])
+@token_required
+@roles_required("ADMIN")
+def listar_usuarios():
+
+    usuarios = user_service.listar_usuarios()
+    return success_response(data=[u.to_dict() for u in usuarios])
+
+# Obtener usuario por id
+@app.route("/users/<int:user_id>", methods=["GET"])
+@token_required
+@roles_required("ADMIN")
+def obtener_usuario(user_id):
+
+    usuario = user_service.obtener_por_id(user_id)
+    return success_response(data=usuario.to_dict())
+
+# Cambiar rol de usuario
+@app.route("/users/<int:user_id>/role", methods=["PATCH"])
+@token_required
+@roles_required("ADMIN")
+def cambiar_rol(user_id):
+
+    data = request.get_json()
+    current_user = request.user
+
+    user_service.cambiar_rol(
+        user_id,
+        data["rol"],
+        current_user
+    )
+
+    return success_response(message="Rol actualizado")
+
+# Desactivar usuario
+@app.route("/users/<int:user_id>/deactivate", methods=["PATCH"])
+@token_required
+@roles_required("ADMIN")
+def desactivar_usuario(user_id):
+
+    current_user = request.user
+    user_service.desactivar_usuario(user_id, current_user)
+
+    return success_response(message="Usuario desactivado")
+
+# Activar usuario
+@app.route("/users/<int:user_id>/activate", methods=["PATCH"])
+@token_required
+@roles_required("ADMIN")
+def activar_usuario(user_id):
+
+    user_service.activar_usuario(user_id)
+
+    return success_response(message="Usuario activado")
+
+# Información de usuario
+@app.route("/auth/me", methods=["GET"])
+@token_required
+def obtener_usuario_actual():
+
+    current_user = request.user
+    usuario = user_service.obtener_por_id(current_user["user_id"])
+
+    return success_response(data=usuario.to_dict())
 
 # ======================================================
 # PRODUCCIÓN

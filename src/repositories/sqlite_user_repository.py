@@ -89,7 +89,7 @@ class SqliteUserRepository:
     # ======================================================
     # LISTAR USUARIOS
     # ======================================================
-    def listar(self):
+    def listar_usuarios(self):
 
         conn = self._conectar()
         cursor = conn.cursor()
@@ -99,6 +99,60 @@ class SqliteUserRepository:
         conn.close()
 
         return [self._row_to_usuario(row) for row in rows]
+
+    # ======================================================
+    # ACTUALIZAR PASSWORDS
+    # ======================================================
+
+    def actualizar_password(self, user_id: int, nuevo_hash: str):
+
+        conn = self._conectar()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            UPDATE usuarios
+            SET password_hash = ?
+            WHERE id = ?
+        """, (nuevo_hash, user_id))
+
+        conn.commit()
+        conn.close()
+
+
+    # ======================================================
+    # ACTUALIZAR ESTADO
+    # ======================================================
+    
+    def actualizar_estado(self, user_id: int, activo: int):
+
+        conn = self._conectar()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            UPDATE usuarios
+            SET activo = ?
+            WHERE id = ?
+        """, (activo, user_id))
+
+        conn.commit()
+        conn.close()
+
+
+    # ======================================================
+    # CONTAR ADMINS ACTIVOS
+    # ======================================================
+
+
+    def contar_admins_activos(self):
+        conn = self._conectar()
+        cursor = conn.cursor()
+        cursor.execute = """
+            SELECT COUNT(*) 
+            FROM users 
+            WHERE rol = 'ADMIN' AND activo = 1
+        """
+        conn.commit()
+        conn.close()
 
     # ======================================================
     # CONVERTIR FILA A OBJETO
@@ -115,18 +169,3 @@ class SqliteUserRepository:
             fecha_creacion=row["fecha_creacion"]
         )
 
-    # ACTUALIZAR PASSWORDS
-
-    def actualizar_password(self, user_id: int, nuevo_hash: str):
-
-        conn = self._conectar()
-        cursor = conn.cursor()
-
-        cursor.execute("""
-            UPDATE usuarios
-            SET password_hash = ?
-            WHERE id = ?
-        """, (nuevo_hash, user_id))
-
-        conn.commit()
-        conn.close()
