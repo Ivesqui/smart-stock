@@ -94,23 +94,32 @@ def create_tables():
     # TABLA: audit_logs
     # ==========================================================
     cursor.execute("""
-    CREATE TABLE IF NOT EXISTS audit_logs (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,           
-    action TEXT NOT NULL,             
-    target_user_id INTEGER,            
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-    details TEXT                     
-);
+        CREATE TABLE IF NOT EXISTS audit_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,           
+        action TEXT NOT NULL,             
+        target_user_id INTEGER,            
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+        details TEXT
+    );
     """)
-
-    conn.commit()
-    conn.close()
 
     # CREAR ÍNDICE EN AUDIT LOGS
 
     cursor.execute("""
     CREATE INDEX idx_audit_timestamp ON audit_logs(timestamp);
     """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS sync_queue (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        entity TEXT,              
+        entity_id INTEGER,        
+        action TEXT,              
+        payload TEXT,             
+        synced INTEGER DEFAULT 0, 
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );""")
+
     conn.commit()
     conn.close()
