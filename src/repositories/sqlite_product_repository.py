@@ -4,7 +4,7 @@ from typing import List, Optional
 
 class SqliteProductRepository:
 
-    def __init__(self, db_path="inventario.db"):
+    def __init__(self, db_path):
         self.db_path = db_path
 
     def _connect(self):
@@ -170,6 +170,8 @@ class SqliteProductRepository:
         conn.commit()
         conn.close()
 
+    # Obtener movimientos por sku
+
     def obtener_movimientos_por_sku(self, sku: str):
         conn = self._connect()
         cursor = conn.cursor()
@@ -181,3 +183,110 @@ class SqliteProductRepository:
         filas = cursor.fetchall()
         conn.close()
         return [dict(fila) for fila in filas]
+
+    # Obtener movimientos
+
+    def obtener_movimientos(self, filtros, page, limit):
+
+        conn = self._connect()
+        cursor = conn.cursor()
+        query = """
+            SELECT id, sku, tipo, cantidad, motivo, usuario_id, fecha
+            FROM movimientos
+            WHERE 1=1
+        """
+
+        cursor.execute(query)
+
+        params = []
+
+        if filtros.get("sku"):
+            query += " AND sku = ?"
+            params.append(filtros["sku"])
+
+        if filtros.get("tipo"):
+            query += " AND tipo = ?"
+            params.append(filtros["tipo"])
+
+        if filtros.get("usuario_id"):
+            query += " AND usuario_id = ?"
+            params.append(filtros["usuario_id"])
+
+        if filtros.get("fecha_desde"):
+            query += " AND fecha >= ?"
+            params.append(filtros["fecha_desde"])
+
+        if filtros.get("fecha_hasta"):
+            query += " AND fecha <= ?"
+            params.append(filtros["fecha_hasta"])
+
+        # PAGINACIÓN
+        offset = (page - 1) * limit
+        query += " ORDER BY fecha DESC LIMIT ? OFFSET ?"
+        params.extend([limit, offset])
+
+
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+
+        movimientos = []
+
+        for row in rows:
+            movimientos.append({
+                "id": row[0],
+                "sku": row[1],
+                "tipo": row[2],
+                "cantidad": row[3],
+                "motivo": row[4],
+                "usuario_id": row[5],
+                "fecha": row[6]
+            })
+
+        return movimientos
+
+    # Obtener stock crítico
+    def obtener_stock_critico(self):
+
+        with self._connect() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT sku, nombre_producto, stock_actual, stock_minimo
+                FROM productos
+                WHERE stock_actual <= stock_minimo
+                ORDER BY stock_actual ASC
+            """)
+            rows = cursor.fetchall()
+
+        productos = []
+
+        for row in rows:
+            stock_actual = row["stock_actual"]
+            stock_minimo = row["stock_minimo"]
+
+            # porcentaje respecto al mínimo
+            porcentaje_restante = (
+                round((stock_actual / stock_minimo) * 100, 2)
+                if stock_minimo > 0 else 0
+            )
+
+            # 🚨 niveles más inteligentes
+            if stock_actual == 0:
+                nivel = "AGOTADO"
+            elif porcentaje_restante <= 50:
+                nivel = "CRITICO"
+            else:
+                nivel = "BAJO"
+
+            productos.append({
+                "sku": row["sku"],
+                "nombre": row["nombre_producto"],
+                "stock_actual": stock_actual,
+                "stock_minimo": stock_minimo,
+                "porcentaje_minimo": porcentaje_restante,
+                "nivel_alerta": nivel
+            })
+
+        return {
+        "total_alertas": len(productos),
+        "data": productos
+        }

@@ -3,7 +3,7 @@ import io
 from datetime import datetime
 
 
-class InventarioExcelService:
+class InventoryExcelService:
 
     def __init__(self, inventario_service):
         self.service = inventario_service

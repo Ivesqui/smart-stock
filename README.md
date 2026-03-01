@@ -138,3 +138,28 @@ JWT
 Decorators
 
 Inyección de dependencias manual
+
+#Roadmap
+
+Nivel 1 (donde me encuentro)
+
+✔ Auth
+✔ Roles
+✔ Auditoría
+✔ Movimientos
+
+Nivel 2 (producto serio)
+
+⬜ Filtros avanzados
+⬜ Paginación
+⬜ Validación más robusta
+⬜ Manejo global de errores
+⬜ Logs estructurados
+
+Nivel 3 (SaaS real)
+
+⬜ Multiempresa
+⬜ Separación por tenant
+⬜ Refresh tokens
+⬜ Rate limiting
+⬜ Deploy en cloud

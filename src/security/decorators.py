@@ -38,12 +38,14 @@ def roles_required(*roles):
         @wraps(f)
         def decorated(*args, **kwargs):
 
-            user = getattr(request, "user", None)
+            user = getattr(g, "user", None)
 
             if not user:
                 return {"error": "User no autenticado"}, 401
 
-            if user.get("rol") not in roles:
+            user_role = user.get("rol")
+
+            if user_role not in roles:
                 return {"error": "No autorizado"}, 403
 
             return f(*args, **kwargs)

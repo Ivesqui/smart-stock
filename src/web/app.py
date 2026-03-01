@@ -9,13 +9,13 @@ from flask import g
 from core.entities.product import Product
 from services.auth_service import AuthService
 from services.inventory_service import InventoryService
-from services.reportes_excel_service import InventarioExcelService
+from services.reports_excel_service import InventoryExcelService
 from repositories.sqlite_product_repository import SqliteProductRepository
 from repositories.sqlite_user_repository import SqliteUserRepository
 from security.decorators import token_required, roles_required
 from services.user_service import UserService
 from services.audit_service import AuditService
-from repositories.audit_repository import AuditRepository
+from repositories.sqlite_audit_repository import AuditRepository
 
 
 # ======================================================
@@ -26,11 +26,11 @@ app = Flask(__name__)
 CORS(app)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "..", "inventario.db")
-repo = SqliteProductRepository()
+repo = SqliteProductRepository(DB_PATH)
 inventario = InventoryService(repo)
 usuario_repo = SqliteUserRepository(DB_PATH)
 auth_service = AuthService(usuario_repo)
-excel_service = InventarioExcelService(inventario)
+excel_service = InventoryExcelService(inventario)
 user_service = UserService(usuario_repo)
 audit_repo = AuditRepository(DB_PATH)
 audit_serv = AuditService(audit_repo)
@@ -144,7 +144,7 @@ def crear_producto():
 
 # ✔ Listar todos / activos
 @app.route("/productos", methods=["GET"])
-@token_required # <- autenticación
+@token_required
 @roles_required("ADMIN", "OPERADOR")
 def listar_productos():
 
@@ -157,7 +157,7 @@ def listar_productos():
 
 # ✔ Buscar por SKU
 @app.route("/productos/<sku>", methods=["GET"])
-@token_required # <- autenticación
+@token_required
 @roles_required("ADMIN", "OPERADOR")
 def buscar_por_sku(sku):
 
@@ -258,7 +258,7 @@ def dar_de_baja(sku):
 
 # ✔ Registrar movimiento
 @app.route("/movimientos", methods=["POST"])
-@token_required # <- autenticación
+@token_required
 @roles_required("ADMIN", "OPERADOR")
 def registrar_movimiento():
 
@@ -288,7 +288,7 @@ def registrar_movimiento():
 
 # ✔ Ver Kardex
 @app.route("/productos/<sku>/movimientos", methods=["GET"])
-@token_required # <- autenticación
+@token_required
 @roles_required("ADMIN")
 def ver_movimientos(sku):
 
@@ -390,7 +390,7 @@ def activar_usuario(user_id):
 
     return success_response(message="Usuario activado")
 
-# Obtener logs de audioria
+# Obtener logs de auditoria
 
 @app.route("/admin/audit-logs", methods=["GET"])
 @token_required
@@ -411,6 +411,39 @@ def obtener_usuario_actual():
 
     return success_response(data=usuario.to_dict())
 
+# ======================================================
+# ALERTAS
+# ======================================================
+@app.route("/alertas/stock-critico", methods=["GET"])
+@token_required
+@roles_required("ADMIN", "OPERADOR")
+def alertas_stock_critico():
+    productos = inventario.obtener_stock_critico()
+    return success_response(data=productos)
+
+
+# ======================================================
+# PAGINACIÓN
+# ======================================================
+@app.route("/movimientos", methods=["GET"])
+@token_required
+@roles_required("ADMIN", "OPERADOR")
+def listar_movimientos():
+
+    filtros = {
+        "sku": request.args.get("sku"),
+        "tipo": request.args.get("tipo"),
+        "usuario_id": request.args.get("usuario_id"),
+        "fecha_desde": request.args.get("fecha_desde"),
+        "fecha_hasta": request.args.get("fecha_hasta"),
+    }
+
+    page = int(request.args.get("page", 1))
+    limit = int(request.args.get("limit", 10))
+
+    resultado = inventario.listar_movimientos(filtros, page, limit)
+
+    return success_response(data=resultado)
 
 
 # ======================================================

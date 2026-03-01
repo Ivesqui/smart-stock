@@ -8,8 +8,10 @@ class InventoryService:
         self.repository = repository
 
     # ======================================================
-    # CREAR PRODUCTO
+    # PRODUCTO
     # ======================================================
+
+    # Ingresar producto
     def crear_producto(self, product: Product):
 
         if not product.sku or not product.nombre_producto:
@@ -25,9 +27,7 @@ class InventoryService:
         self.repository.save(product)
         return True
 
-    # ======================================================
-    # LISTAR PRODUCTOS
-    # ======================================================
+    # Listar producto
     def listar_productos(self, estado=None):
 
         products = self.repository.get_all()
@@ -40,9 +40,8 @@ class InventoryService:
 
         return products
 
-    # ======================================================
-    # BUSCAR
-    # ======================================================
+
+    # Buscar productos
     def buscar_por_sku(self, sku: str):
         return self.repository.get_by_sku(sku)
 
@@ -52,9 +51,8 @@ class InventoryService:
     def buscar_por_codigo_barras(self, codigo: str):
         return self.repository.get_by_barcode(codigo)
 
-    # ======================================================
-    # ACTUALIZACIONES
-    # ======================================================
+
+    # Actualizar producto
     def actualizar_producto(self, sku: str, datos: dict):
 
         producto = self.repository.get_by_sku(sku)
@@ -75,9 +73,8 @@ class InventoryService:
         self.repository.actualizar_parcial(sku, datos)
         return True
 
-    # ======================================================
-    # ACTIVAR PRODUCTO
-    # ======================================================
+
+    # Activar producto
     def activar_producto(self, sku: str):
 
         producto = self.repository.get_by_sku(sku)
@@ -88,9 +85,7 @@ class InventoryService:
         self.repository.activate_logic(sku)
         return True
 
-    # ======================================================
-    # DESACTIVAR
-    # ======================================================
+    # Desactivar producto
     def desactivar_producto(self, sku: str):
 
         producto = self.repository.get_by_sku(sku)
@@ -101,7 +96,7 @@ class InventoryService:
         return True
 
     # ======================================================
-    # MOVIMIENTOS
+    # MOVIMIENTOS DE PRODUCTO
     # ======================================================
     def registrar_movimiento(self, sku, tipo, cantidad, motivo, usuario_id):
 
@@ -144,6 +139,12 @@ class InventoryService:
         return self.repository.obtener_movimientos_por_sku(sku)
 
     # ======================================================
+    # PAGINACIÓN
+    # ======================================================
+    def listar_movimientos(self, filtros, page, limit):
+        return self.repository.obtener_movimientos(filtros, page, limit)
+
+    # ======================================================
     # DASHBOARD
     # ======================================================
     def obtener_resumen_dashboard(self):
@@ -158,3 +159,9 @@ class InventoryService:
                 if p["stock_actual"] <= p["stock_minimo"]
             ])
         }
+
+    # ======================================================
+    # ALERTAS
+    # ======================================================
+    def obtener_stock_critico(self):
+        return self.repository.obtener_stock_critico()
