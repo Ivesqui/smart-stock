@@ -97,16 +97,23 @@ Este formato facilita la identificación del tipo de producto y es comúnmente u
 ```
 smart-stock
 ├src/
+│ ├── controllers/ (Recientemente lo agregué por que tengo todo en app.py)
 │ ├── core/
-│ │ ├── entities/
-│ │ │  ├── product.py
-│ │ │  └── user.py
-│ │ └── interfaces/
-│ ├── interfaces/
-│ │ └── product_repository.py 
+│ │  ├── entities/
+│ │  │  ├── product.py
+│ │  │  └── user.py
+│ │  └── interfaces/
+│ │     ├── audit_repository.py 
+│ │     ├── product_repository.py
+│ │     └── user_repository.py 
 │ ├── infrastructure/
 │ │ └── database/
-│ │    └── conect.py
+│ │    └── connection.py
+│ ├── repositories/
+│ │ ├── init.py
+│ │ ├── sqlite_audit_repository.py
+│ │ ├── sqlite_product_repository.py
+│ │ └── sqlite_user_repository.py 
 │ ├── security/
 │ │ ├── decorators.py
 │ │ ├── hash_utils.py
@@ -116,11 +123,11 @@ smart-stock
 │ │ ├── auth_service.py
 │ │ ├── inventory_service.py
 │ │ └── report_excel_service.py 
-│ ├── tests/
+│ ├── tests/ (No tengo nada no sé que va aquí)
 │ ├── web/
 │ │ └── app.py 
 │ ├── _init_.py
-│ ├── inventory.db
+│ ├── inventario.db
 │ └── main.py
 └── README.md
 ```
