@@ -1,14 +1,12 @@
+from flask import send_file
+
+from container.dependencies import excel_service
 
 
+# REPORT CONTROLLER
 
-# ======================================================
-# REPOR CONTROLLER
-# ======================================================
 
-#@app.route("/reportes/inventario/excel", methods=["GET"])
-@token_required # <- autenticación
-#@roles_required("ADMIN", "OPERADOR")
-def descargar_excel_inventario():
+def convertir_inventario_a_excel():
 
     archivo_excel = excel_service.generar_excel_en_memoria()
 
@@ -18,3 +16,9 @@ def descargar_excel_inventario():
         download_name="reporte_inventario.xlsx",
         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
+def convertir_movimientos_a_excel():
+    return
+
+def convertir_logs_a_json():
+    return
