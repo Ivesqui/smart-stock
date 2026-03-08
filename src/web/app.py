@@ -1,45 +1,24 @@
-# ======================================================
-# API WEB - SISTEMA DE INVENTARIO
-# ======================================================
-import os
-from flask import Flask, request, jsonify
+from flask import Flask
 from flask_cors import CORS
-from flask import send_file
-from flask import g
-from core.entities.product import Product
-from services.auth_service import AuthService
 
-from services.reports_excel_service import InventoryExcelService
-from repositories.sqlite_product_repository import SqliteProductRepository
-from repositories.sqlite_user_repository import SqliteUserRepository
-from security.decorators import token_required, roles_required
-from services.user_service import UserService
-from services.audit_service import AuditService
-from repositories.sqlite_audit_repository import AuditRepository
-
-
-# ======================================================
-# CONFIGURACIÓN
-# ======================================================
+from web.routes.auth_route import auth_bp
+from web.routes.user_route import user_bp
+from web.routes.product_route import product_bp
+from web.routes.movement_route import movement_bp
+from web.routes.report_route import report_bp
+from web.routes.alert_route import alert_bp
+from web.routes.dashboard_route import dashboard_bp
 
 app = Flask(__name__)
 CORS(app)
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "..", "inventario.db")
-repo = SqliteProductRepository(DB_PATH)
-inventario = InventoryService(repo)
-usuario_repo = SqliteUserRepository(DB_PATH)
-auth_service = AuthService(usuario_repo)
-excel_service = InventoryExcelService(inventario)
-user_service = UserService(usuario_repo)
-audit_repo = AuditRepository(DB_PATH)
-audit_serv = AuditService(audit_repo)
 
-
-# ======================================================
-# PRODUCCIÓN
-# ======================================================
+app.register_blueprint(auth_bp)
+app.register_blueprint(user_bp)
+app.register_blueprint(product_bp)
+app.register_blueprint(movement_bp)
+app.register_blueprint(report_bp)
+app.register_blueprint(alert_bp)
+app.register_blueprint(dashboard_bp)
 
 if __name__ == "__main__":
-    # Para desarrollo únicamente
     app.run(host="0.0.0.0", port=5000)
