@@ -1,14 +1,8 @@
 from flask import request, g
-from web.app import auth_service, user_service
+from container.dependencies import auth_service, user_service
 from utils.responses import success_response, error_response
-from security.decorators import token_required
 
 
-
-# AUTH
-# ======================================================
-
-#@app.route("/auth/register", methods=["POST"])
 def register():
     try:
         data = request.get_json()
@@ -30,18 +24,18 @@ def register():
 
     except ValueError as e:
         return error_response(str(e), 400)
-    #except Exception:
-    #    return error_response("Error interno del servidor", 500)
     except Exception as e:
         print("ERROR REGISTER:", e)
-        raise
+        # raise test de errores
+        return error_response("Error interno del servidor", 500)
 
 
 
-#@app.route("/auth/login", methods=["POST"])
 def login():
     try:
         data = request.get_json()
+        if not data:
+            return error_response("Datos requeridos", 400)
 
         token = auth_service.login(
             email=data["email"],
@@ -59,9 +53,8 @@ def login():
 
 
 # Información de usuario
-#@app.route("/auth/me", methods=["GET"])
-@token_required
-def obtener_usuario_actual():
+
+def me():
 
     current_user = g.user
     usuario = user_service.obtener_por_id(current_user["user_id"])
