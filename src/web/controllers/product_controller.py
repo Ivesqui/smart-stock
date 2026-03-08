@@ -1,21 +1,16 @@
-from flask import request, g
-from web.app import auth_service, user_service
+from flask import request
+from core.entities.product import Product
 from utils.responses import success_response, error_response
-from security.decorators import token_required
+from container.dependencies import inventario
 
 
-# ======================================================
-# PRODUCTOS
-# ======================================================
 
-# ✔ Crear product
-#@app.route("/productos", methods=["POST"])
-@token_required
-#@roles_required("ADMIN", "OPERADOR")
+# Crear producto
 def crear_producto():
     try:
         data = request.get_json()
-
+        if not data:
+            return error_response("Datos requeridos", 400)
         producto = Product(
             sku=data["sku"],
             codigo_barras=data.get("codigo_barras"),
@@ -23,7 +18,7 @@ def crear_producto():
             categoria=data["categoria"],
             descripcion=data.get("descripcion"),
             unidad=data["unidad"],
-            precio_compra=float(data["precio_compra"]),
+            precio_compra=float(data.get("precio_compra", 0)),
             precio_venta=float(data["precio_venta"]),
             stock_actual=int(data["stock_actual"]),
             stock_minimo=int(data["stock_minimo"]),
@@ -41,23 +36,14 @@ def crear_producto():
         return error_response("Error interno del servidor", 500)
 
 
-# ✔ Listar todos / activos
-#@app.route("/productos", methods=["GET"])
-@token_required
-#@roles_required("ADMIN", "OPERADOR")
+# Listar todos los productos activos
 def listar_productos():
-
     estado = request.args.get("estado")  # ACTIVO / INACTIVO
-
     productos = inventario.listar_productos(estado)
-
     return success_response(data=productos)
 
 
-# ✔ Buscar por SKU
-#@app.route("/productos/<sku>", methods=["GET"])
-@token_required
-#@roles_required("ADMIN", "OPERADOR")
+# Buscar producto por SKU
 def buscar_por_sku(sku):
 
     producto = inventario.buscar_por_sku(sku)
@@ -68,21 +54,13 @@ def buscar_por_sku(sku):
     return success_response(data=producto)
 
 
-# ✔ Buscar por nombre
-#@app.route("/productos/nombre/<nombre>", methods=["GET"])
-@token_required
-#@roles_required("ADMIN", "OPERADOR")
+# Buscar producto por nombre
 def buscar_por_nombre(nombre):
-
     productos = inventario.buscar_por_nombre(nombre)
-
     return success_response(data=productos)
 
 
-# ✔ Buscar por código de barras
-#@app.route("/productos/barcode/<codigo>", methods=["GET"])
-@token_required
-#@roles_required("ADMIN", "OPERADOR")
+# Buscar producto por código de barras
 def buscar_por_codigo(codigo):
 
     producto = inventario.buscar_por_codigo_barras(codigo)
@@ -93,59 +71,35 @@ def buscar_por_codigo(codigo):
     return success_response(data=producto)
 
 
-# ✔ PUT total
-#@app.route("/productos/<sku>", methods=["PUT"])
-@token_required
-#@roles_required("ADMIN", "OPERADOR")
-def actualizar_total(sku):
-
+# Actualizar producto
+def actualizar_producto(sku):
     data = request.get_json()
-
     actualizado = inventario.actualizar_producto(sku, data)
 
     if not actualizado:
         return error_response("Product no encontrado", 404)
-
     return success_response(message="Product actualizado")
 
 
-# ✔ PATCH parcial
-#@app.route("/productos/<sku>", methods=["PATCH"])
-@token_required
-#@roles_required("ADMIN", "OPERADOR")
+# Actualizar productoH parcial
 def actualizar_parcial(sku):
-
     data = request.get_json()
-
     actualizado = inventario.actualizar_parcial(sku, data)
-
     if not actualizado:
         return error_response("Product no encontrado", 404)
 
     return success_response(message="Product actualizado parcialmente")
 
-# ✔ PATCH alta lógica
-#@app.route("/productos/<sku>/alta", methods=["PATCH"])
-@token_required
-#@roles_required("ADMIN", "OPERADOR")
+# Activar producto
 def dar_de_alta(sku):
-
     activado = inventario.activar_producto(sku)
-
     if not activado:
         return error_response("Product no encontrado", 404)
-
     return success_response(message="Product activado")
 
-# ✔ PATCH baja lógica
-#@app.route("/productos/<sku>/baja", methods=["PATCH"])
-@token_required
-#@roles_required("ADMIN", "OPERADOR")
+# Desactivar producto
 def dar_de_baja(sku):
-
     eliminado = inventario.desactivar_producto(sku)
-
     if not eliminado:
         return error_response("Product no encontrado", 404)
-
     return success_response(message="Product desactivado")
